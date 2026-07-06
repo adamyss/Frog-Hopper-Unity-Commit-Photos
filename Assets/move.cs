@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class move : MonoBehaviour
 {
@@ -45,10 +46,6 @@ public class move : MonoBehaviour
             {
                 groundedKeyUp();
             }
-            else
-            {
-
-            }
         }
     }
     public bool checkGrounded()
@@ -69,6 +66,7 @@ public class move : MonoBehaviour
     }
     public void groundedKeyUp()
     {
+        pivot.SetActive(false);
         Vector2 dir = pivot.transform.right;
         dir = dir.normalized;
         dir.y *= yMult;
@@ -77,6 +75,7 @@ public class move : MonoBehaviour
     }
     public void groundedMoveCheck()
     {
+        pivot.SetActive(true);
         if (up)
         {
             angle += angleAddSpeed * Time.deltaTime;
