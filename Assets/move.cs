@@ -1,3 +1,5 @@
+using System.Collections;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -20,7 +22,10 @@ public class move : MonoBehaviour
     public GameObject camOffset;
     public float yMult;
     public float yPos;
-
+    public Animator anim;
+    bool jumpable = true;
+    public float jumpTime;
+    bool checkable = true;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -58,23 +63,51 @@ public class move : MonoBehaviour
            
             if (Physics2D.Raycast(pos, Vector2.down, raycastDists, ground).collider != null){
                 anyGround = true;
+                if (checkable)
+                {
+                    anim.SetBool("hitGround", true);
+                }
                 draw = Color.red;
             }
             Debug.DrawRay(pos, Vector2.down, draw);
         }
+
         return anyGround;
     }
     public void groundedKeyUp()
     {
+        if (!jumpable)
+        {
+            return;
+        }
+        jumpable = false;
         pivot.SetActive(false);
+       
+        StartCoroutine(jump());
+
+    }
+    public IEnumerator jump()
+    {
+        checkable = false;
+        anim.SetBool("hitGround", false);
+        anim.Play("jump");
+  
+        yield return new WaitForSeconds(jumpTime);
         Vector2 dir = pivot.transform.right;
         dir = dir.normalized;
         dir.y *= yMult;
         Debug.Log("direction: " + dir);
         rb2d.AddForce(dir * jumpForce);
+        yield return new WaitForSeconds(0.2f);
+        checkable = true;
+        jumpable = true;
     }
     public void groundedMoveCheck()
     {
+        if (!jumpable)
+        {
+            return;
+        }
         pivot.SetActive(true);
         if (up)
         {

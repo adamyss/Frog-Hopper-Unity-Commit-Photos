@@ -20712,6 +20712,7 @@ GameObject:
   - component: {fileID: 1879446495}
   - component: {fileID: 1879446491}
   - component: {fileID: 1879446490}
+  - component: {fileID: 1879446496}
   m_Layer: 0
   m_Name: Main Camera (1)
   m_TagString: Untagged
@@ -20817,7 +20818,7 @@ Camera:
   far clip plane: 5000
   field of view: 40
   orthographic: 1
-  orthographic size: 9
+  orthographic size: 8.983334
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -20891,6 +20892,30 @@ MonoBehaviour:
       BarrelClipping: 0.25
       Anamorphism: 0
   BlendHint: 0
+--- !u!114 &1879446496
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1879446488}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c88f5cead0c0b2a4eb05b5900433f8d1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ComponentVersion: 1
+  m_AssetsPPU: 30
+  m_RefResolutionX: 1920
+  m_RefResolutionY: 1080
+  m_CropFrame: 0
+  m_GridSnapping: 0
+  m_FilterMode: 0
+  m_UpscaleRT: 0
+  m_PixelSnapping: 0
+  m_CropFrameX: 0
+  m_CropFrameY: 0
+  m_StretchFill: 0
 --- !u!1 &1883694824
 GameObject:
   m_ObjectHideFlags: 0
@@ -21168,6 +21193,8 @@ MonoBehaviour:
   camOffset: {fileID: 140740600}
   yMult: 1.6
   yPos: 0.3
+  anim: {fileID: 1933147817}
+  jumpTime: 0.25
 --- !u!1 &1953206603
 GameObject:
   m_ObjectHideFlags: 0

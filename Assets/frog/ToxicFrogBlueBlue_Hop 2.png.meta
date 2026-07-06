@@ -1,10 +1,13 @@
 fileFormatVersion: 2
-guid: a9196f0dac056ef4e9c735f3e2ff2dc6
+guid: 39e448ce08d8b58449a323e9b86c6923
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 4130640169021434097
-    second: 5_0
+      213: 4103226105216276706
+    second: ToxicFrogBlueBlue_Hop 2_0
+  - first:
+      213: -323845302247032465
+    second: ToxicFrogBlueBlue_Hop 2_1
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -37,7 +40,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 0
+    filterMode: 1
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -113,13 +116,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: 5_0
+      name: ToxicFrogBlueBlue_Hop 2_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 620
-        height: 356
+        x: 8
+        y: 16
+        width: 25
+        height: 19
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +131,30 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 1f86b71495bf25930800000000000000
-      internalID: 4130640169021434097
+      spriteID: 2e89682276691f830800000000000000
+      internalID: 4103226105216276706
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ToxicFrogBlueBlue_Hop 2_1
+      rect:
+        serializedVersion: 2
+        x: 58
+        y: 14
+        width: 23
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f69f265d968718bf0800000000000000
+      internalID: -323845302247032465
       vertices: []
       indices: 
       edges: []
@@ -148,7 +173,8 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      5_0: 4130640169021434097
+      ToxicFrogBlueBlue_Hop 2_0: 4103226105216276706
+      ToxicFrogBlueBlue_Hop 2_1: -323845302247032465
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

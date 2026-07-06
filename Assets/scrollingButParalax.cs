@@ -13,6 +13,7 @@ public class scrollingButParalax : MonoBehaviour
         sr = GetComponentInChildren<SpriteRenderer>();
         startPos = transform.position.x;
         lengthy = sr.bounds.size.x;
+
     }
 
     // Update is called once per frame
