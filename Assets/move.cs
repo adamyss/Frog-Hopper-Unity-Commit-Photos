@@ -31,7 +31,7 @@ public class move : MonoBehaviour
     public GameObject targetGrapple;
     public LineRenderer lr;
     public LayerMask grapple;
-    public Joint2D j;
+    public SpringJoint2D j;
     Rigidbody2D targetGrapplerb2d;
     public GameObject tongue;
     public GameObject tongueStart;
@@ -43,10 +43,12 @@ public class move : MonoBehaviour
     public float moveTime;
     public bool rotFreeze = false;
     public float moveOutTime;
+    Vector3 offset;
+    
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        offset = camOffset.transform.position;
     }
     private void OnDrawGizmos()
     {
@@ -75,7 +77,17 @@ public class move : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+   
         // :D 
+        if(j.enabled == true)
+        {
+            float adder = 0.27f;
+            float dist = Vector2.Distance(transform.position,targetGrapple.transform.position);
+            if(dist+adder <j.distance )
+            {
+                j.distance = dist + adder;
+            }
+        }
         if (targetGrapple == null && grounded == false)
         {
             closest = checkGrapplePoints();
@@ -114,7 +126,13 @@ public class move : MonoBehaviour
                 transform.right = transform.position + vecy;
             }
         }
-        camOffset.transform.position = new Vector2(camOffset.transform.position.x, yPos);
+        if (transform.eulerAngles.y == 0 || j.enabled == true && rb2d.linearVelocityX > 0)
+        {
+            camOffset.transform.position = new Vector2(transform.position.x + offset.x, yPos);
+        } else if(transform.eulerAngles.y == 180 || j.enabled == true && rb2d.linearVelocityX < 0)
+        {
+            camOffset.transform.position = new Vector2(transform.position.x - offset.x, yPos);
+        }
         grounded = checkGrounded();
         if (Input.GetKey(globalKey))
         {
@@ -140,8 +158,11 @@ public class move : MonoBehaviour
     }
     public IEnumerator startyGraply()
     {
+        grappleLook();
+        Vector2 prev = rb2d.linearVelocity;
         rotFreeze = true;
         rb2d.bodyType = RigidbodyType2D.Kinematic;
+        rb2d.linearVelocity = Vector3.zero;
         anim.Play("toungeOut");
         yield return new WaitForSeconds(outTime);
         Vector3 movyPos;
@@ -149,16 +170,20 @@ public class move : MonoBehaviour
         lr.SetPosition(1, tongueStart.transform.position);
         float timer = 0;
         lr.enabled = true;
+        tongue.SetActive(true);
+        tongue.transform.position = tongueStart.transform.position;
         while(timer < moveOutTime)
         {
             movyPos = Vector3.Lerp(tongueStart.transform.position, targetGrapple.transform.position, timer / moveOutTime);
             lr.SetPosition(1, movyPos);
+            tongue.transform.position = movyPos;
             timer += Time.deltaTime;
             yield return new WaitForEndOfFrame();
         }
         rb2d.bodyType = RigidbodyType2D.Dynamic;
-        tongue.SetActive(true);
-        j.enabled = true;
+        rb2d.linearVelocity = prev;
+        j.distance = Vector2.Distance(transform.position,targetGrapple.transform.position);
+          j.enabled = true;
         targetGrapple.GetComponent<SpriteRenderer>().color = Color.yellow;
         targetGrapplerb2d = targetGrapple.GetComponent<Rigidbody2D>();
         j.connectedBody = targetGrapplerb2d;
@@ -168,20 +193,25 @@ public class move : MonoBehaviour
     public IEnumerator unGrapply()
     {
         rotFreeze = true;
+        Vector2 prev = rb2d.linearVelocity;
         rb2d.bodyType = RigidbodyType2D.Kinematic;
+        rb2d.linearVelocity = Vector3.zero;
         Vector3 movyPos;
         float timer = 0;
         lr.enabled = true;
         while (timer < inTime)
         {
             movyPos = Vector3.Lerp(tongueStart.transform.position, tongue.transform.position, Mathf.Lerp(1,0,timer / inTime));
+            tongue.transform.position = movyPos;
             lr.SetPosition(1, movyPos);
             timer += Time.deltaTime;
             yield return new WaitForEndOfFrame();
         }
+        tongue.SetActive(false);
         anim.Play("toungeIn");
         lr.enabled = false;
         rb2d.bodyType = RigidbodyType2D.Dynamic;
+        rb2d.linearVelocity = prev;
         rotFreeze = false;
         yield return null;
     }

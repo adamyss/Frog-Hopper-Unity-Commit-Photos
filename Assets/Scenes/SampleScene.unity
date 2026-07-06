@@ -21897,8 +21897,8 @@ GameObject:
   - component: {fileID: 1933147816}
   - component: {fileID: 1933147815}
   - component: {fileID: 1933147819}
-  - component: {fileID: 1933147820}
   - component: {fileID: 1933147821}
+  - component: {fileID: 1933147822}
   m_Layer: 0
   m_Name: ToxicFrogBlueBlue_Idle_0
   m_TagString: Untagged
@@ -22137,36 +22137,16 @@ MonoBehaviour:
   grapple:
     serializedVersion: 2
     m_Bits: 128
-  j: {fileID: 1933147820}
+  j: {fileID: 1933147822}
   tongue: {fileID: 83158369}
   tongueStart: {fileID: 1838911543}
   lookOffset: 0
-  outTime: 0.2
-  inTime: 0.2
+  outTime: 0.04
+  inTime: 0.039375
   furthestMult: 0
   moveTime: 0
   rotFreeze: 0
-  moveOutTime: 0.4
---- !u!232 &1933147820
-DistanceJoint2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1933147813}
-  m_Enabled: 0
-  serializedVersion: 4
-  m_EnableCollision: 0
-  m_ConnectedRigidBody: {fileID: 0}
-  m_BreakForce: Infinity
-  m_BreakTorque: Infinity
-  m_BreakAction: 3
-  m_AutoConfigureConnectedAnchor: 0
-  m_Anchor: {x: 0, y: 0}
-  m_ConnectedAnchor: {x: 0.044853754, y: 0.2739715}
-  m_AutoConfigureDistance: 1
-  m_Distance: 0.005
-  m_MaxDistanceOnly: 0
+  moveOutTime: 0.08
 --- !u!120 &1933147821
 LineRenderer:
   serializedVersion: 2
@@ -22274,6 +22254,27 @@ LineRenderer:
   m_UseWorldSpace: 1
   m_Loop: 0
   m_ApplyActiveColorSpace: 1
+--- !u!231 &1933147822
+SpringJoint2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1933147813}
+  m_Enabled: 0
+  serializedVersion: 4
+  m_EnableCollision: 0
+  m_ConnectedRigidBody: {fileID: 0}
+  m_BreakForce: Infinity
+  m_BreakTorque: Infinity
+  m_BreakAction: 3
+  m_AutoConfigureConnectedAnchor: 0
+  m_Anchor: {x: 0, y: 0}
+  m_ConnectedAnchor: {x: 0, y: 0}
+  m_AutoConfigureDistance: 0
+  m_Distance: 0.4422803
+  m_DampingRatio: 1
+  m_Frequency: 6
 --- !u!1 &1953206603
 GameObject:
   m_ObjectHideFlags: 0
