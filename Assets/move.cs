@@ -37,6 +37,12 @@ public class move : MonoBehaviour
     public GameObject tongueStart;
     public float lookOffset;
     GameObject closest;
+    public float outTime;
+    public float inTime;
+    public float furthestMult;
+    public float moveTime;
+    public bool rotFreeze = false;
+    public float moveOutTime;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -60,15 +66,16 @@ public class move : MonoBehaviour
     }
     public void grappleLook()
     {
+       
         Vector3 lookyObjPos = targetGrapple.transform.position;
         Vector3 dir = lookyObjPos - transform.position;
-        // stole this math from google btw
         transform.right = dir;
     }
 
     // Update is called once per frame
     void Update()
     {
+        // :D 
         if (targetGrapple == null && grounded == false)
         {
             closest = checkGrapplePoints();
@@ -86,28 +93,26 @@ public class move : MonoBehaviour
                 targetGrapple =closest;
                 if(targetGrapple != null)
                 {
-                    lr.enabled = true;
-                    tongue.SetActive(true);
-                    j.enabled = true;
-                    targetGrapple.GetComponent<SpriteRenderer>().color = Color.yellow;
-                    targetGrapplerb2d = targetGrapple.GetComponent<Rigidbody2D>();
-                    j.connectedBody = targetGrapplerb2d;
-                    tongue.transform.position = targetGrapple.transform.position;
+                    StartCoroutine(startyGraply());
                 }
             }
         }
-        if (!grounded && targetGrapple != null)
+        if (rotFreeze == false)
         {
-            grappleLook();
-        } else if (grounded)
-        {
-            mouseLook();
-        }
-        else
-        {
-            Vector3 vecy = (Vector3)rb2d.linearVelocity.normalized;
-            vecy.y = 0;
-            transform.right = transform.position + vecy;
+            if (!grounded && targetGrapple != null)
+            {
+                grappleLook();
+            }
+            else if (grounded)
+            {
+                mouseLook();
+            }
+            else
+            {
+                Vector3 vecy = (Vector3)rb2d.linearVelocity.normalized;
+                vecy.y = 0;
+                transform.right = transform.position + vecy;
+            }
         }
         camOffset.transform.position = new Vector2(camOffset.transform.position.x, yPos);
         grounded = checkGrounded();
@@ -117,7 +122,7 @@ public class move : MonoBehaviour
             {
                 groundedMoveCheck();
             }
-            else if(targetGrapple != null)
+            else if(targetGrapple != null && j.enabled == true)
             {
                 lr.SetPosition(0, tongueStart.transform.position);
                 lr.SetPosition(1, targetGrapple.transform.position);
@@ -133,16 +138,64 @@ public class move : MonoBehaviour
             unGrapple();
         }
     }
+    public IEnumerator startyGraply()
+    {
+        rotFreeze = true;
+        rb2d.bodyType = RigidbodyType2D.Kinematic;
+        anim.Play("toungeOut");
+        yield return new WaitForSeconds(outTime);
+        Vector3 movyPos;
+        lr.SetPosition(0, tongueStart.transform.position);
+        lr.SetPosition(1, tongueStart.transform.position);
+        float timer = 0;
+        lr.enabled = true;
+        while(timer < moveOutTime)
+        {
+            movyPos = Vector3.Lerp(tongueStart.transform.position, targetGrapple.transform.position, timer / moveOutTime);
+            lr.SetPosition(1, movyPos);
+            timer += Time.deltaTime;
+            yield return new WaitForEndOfFrame();
+        }
+        rb2d.bodyType = RigidbodyType2D.Dynamic;
+        tongue.SetActive(true);
+        j.enabled = true;
+        targetGrapple.GetComponent<SpriteRenderer>().color = Color.yellow;
+        targetGrapplerb2d = targetGrapple.GetComponent<Rigidbody2D>();
+        j.connectedBody = targetGrapplerb2d;
+        tongue.transform.position = targetGrapple.transform.position;
+        rotFreeze = false;
+    }
+    public IEnumerator unGrapply()
+    {
+        rotFreeze = true;
+        rb2d.bodyType = RigidbodyType2D.Kinematic;
+        Vector3 movyPos;
+        float timer = 0;
+        lr.enabled = true;
+        while (timer < inTime)
+        {
+            movyPos = Vector3.Lerp(tongueStart.transform.position, tongue.transform.position, Mathf.Lerp(1,0,timer / inTime));
+            lr.SetPosition(1, movyPos);
+            timer += Time.deltaTime;
+            yield return new WaitForEndOfFrame();
+        }
+        anim.Play("toungeIn");
+        lr.enabled = false;
+        rb2d.bodyType = RigidbodyType2D.Dynamic;
+        rotFreeze = false;
+        yield return null;
+    }
     public void unGrapple()
     {
         if (targetGrapple != null)
         {
-            lr.enabled = false;
+     
             targetGrapple.GetComponent<SpriteRenderer>().color = Color.red;
             targetGrapple = null;
             j.connectedBody = null;
             targetGrapplerb2d = null;
             j.enabled = false;
+            StartCoroutine(unGrapply());
         }
     }
     public GameObject checkGrapplePoints()

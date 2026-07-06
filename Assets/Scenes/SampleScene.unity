@@ -870,7 +870,7 @@ Transform:
   m_GameObject: {fileID: 324726195}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 20.8, y: 6.2, z: 0}
+  m_LocalPosition: {x: 23.35, y: 9.96, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1110,7 +1110,7 @@ Transform:
   m_GameObject: {fileID: 416752488}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 14.21, y: 6.39, z: 0}
+  m_LocalPosition: {x: 15.33, y: 9.37, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -21626,7 +21626,7 @@ Transform:
   m_GameObject: {fileID: 1838911543}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.09, y: 0.019300004, z: 0}
+  m_LocalPosition: {x: 0.001, y: 0.008, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -22112,7 +22112,7 @@ MonoBehaviour:
   rb2d: {fileID: 1933147815}
   minAngle: -10
   maxAngle: 65
-  jumpForce: 650
+  jumpForce: 500
   up: 0
   angleAddSpeed: 45
   angle: 0
@@ -22141,6 +22141,12 @@ MonoBehaviour:
   tongue: {fileID: 83158369}
   tongueStart: {fileID: 1838911543}
   lookOffset: 0
+  outTime: 0.2
+  inTime: 0.2
+  furthestMult: 0
+  moveTime: 0
+  rotFreeze: 0
+  moveOutTime: 0.4
 --- !u!232 &1933147820
 DistanceJoint2D:
   m_ObjectHideFlags: 0
@@ -22205,7 +22211,7 @@ LineRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 14
   m_Positions:
   - {x: 30, y: 30, z: 0}
   - {x: -50, y: -50, z: 1}
@@ -22216,8 +22222,8 @@ LineRenderer:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
-        time: 0.06481552
-        value: 0.3316326
+        time: 0.06018448
+        value: 0.132658
         inSlope: 0
         outSlope: 0
         tangentMode: 0
