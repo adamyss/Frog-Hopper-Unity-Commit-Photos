@@ -16,6 +16,10 @@ public class move : MonoBehaviour
     public float[] leftRightOffsets;
     public LayerMask ground;
     public float groundCheckYOffset;
+    public GameObject camOffset;
+    public float yMult;
+    public float yPos;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -25,6 +29,7 @@ public class move : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        camOffset.transform.position = new Vector2(camOffset.transform.position.x, yPos);
         grounded = checkGrounded();
         if (Input.GetKey(globalKey))
         {
@@ -66,6 +71,8 @@ public class move : MonoBehaviour
     {
         Vector2 dir = pivot.transform.right;
         dir = dir.normalized;
+        dir.y *= yMult;
+        Debug.Log("direction: " + dir);
         rb2d.AddForce(dir * jumpForce);
     }
     public void groundedMoveCheck()
