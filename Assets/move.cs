@@ -44,6 +44,7 @@ public class move : MonoBehaviour
     public bool rotFreeze = false;
     public float moveOutTime;
     Vector3 offset;
+    public Vector3 lastCheckPoint;
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -91,7 +92,10 @@ public class move : MonoBehaviour
         if (targetGrapple == null && grounded == false)
         {
             closest = checkGrapplePoints();
-            closest.GetComponent<SpriteRenderer>().color = Color.blue;
+            if (closest != null)
+            {
+                closest.GetComponent<SpriteRenderer>().color = Color.blue;
+            }
         }
         if (grounded == true && closest != null)
         {
@@ -154,6 +158,28 @@ public class move : MonoBehaviour
                 groundedKeyUp();
             }
             unGrapple();
+        }
+    }
+    public IEnumerator die()
+    {
+        anim.Play("die");
+        yield return new WaitForSeconds(0.45f);
+        transform.position = lastCheckPoint;
+        anim.Play("IDLE");
+    }
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("hit"))
+        {
+            StartCoroutine(die());
+        }
+      
+    }
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject.CompareTag("checkpoint"))
+        {
+            lastCheckPoint = collision.gameObject.transform.position;
         }
     }
     public IEnumerator startyGraply()
