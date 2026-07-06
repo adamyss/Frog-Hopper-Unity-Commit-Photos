@@ -1,4 +1,5 @@
 using System.Collections;
+using TMPro.EditorUtilities;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
@@ -26,15 +27,88 @@ public class move : MonoBehaviour
     bool jumpable = true;
     public float jumpTime;
     bool checkable = true;
+    public float grappleRadius;
+    public GameObject targetGrapple;
+    public LineRenderer lr;
+    public LayerMask grapple;
+    public Joint2D j;
+    Rigidbody2D targetGrapplerb2d;
+    public GameObject tongue;
+    public GameObject tongueStart;
+    public float lookOffset;
+    GameObject closest;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         
     }
+    private void OnDrawGizmos()
+    {
+        Gizmos.DrawSphere(transform.position,grappleRadius);
+    }
+    public void mouseLook()
+    {
+        Vector3 mousePos = Input.mousePosition;
+        if(mousePos.x < Screen.width / 2)
+        {
+            transform.eulerAngles = new Vector3(0, 180, 0);
+        }
+        else
+        {
+            transform.eulerAngles = new Vector3(0, 0, 0);
+        }
+    }
+    public void grappleLook()
+    {
+        Vector3 lookyObjPos = targetGrapple.transform.position;
+        Vector3 dir = lookyObjPos - transform.position;
+        // stole this math from google btw
+        transform.right = dir;
+    }
 
     // Update is called once per frame
     void Update()
     {
+        if (targetGrapple == null && grounded == false)
+        {
+            closest = checkGrapplePoints();
+            closest.GetComponent<SpriteRenderer>().color = Color.blue;
+        }
+        if (grounded == true && closest != null)
+        {
+            closest.GetComponent<SpriteRenderer>().color = Color.red;
+            closest = null;
+        }
+        if (Input.GetKeyDown(globalKey))
+        {
+            if (!grounded)
+            {
+                targetGrapple =closest;
+                if(targetGrapple != null)
+                {
+                    lr.enabled = true;
+                    tongue.SetActive(true);
+                    j.enabled = true;
+                    targetGrapple.GetComponent<SpriteRenderer>().color = Color.yellow;
+                    targetGrapplerb2d = targetGrapple.GetComponent<Rigidbody2D>();
+                    j.connectedBody = targetGrapplerb2d;
+                    tongue.transform.position = targetGrapple.transform.position;
+                }
+            }
+        }
+        if (!grounded && targetGrapple != null)
+        {
+            grappleLook();
+        } else if (grounded)
+        {
+            mouseLook();
+        }
+        else
+        {
+            Vector3 vecy = (Vector3)rb2d.linearVelocity.normalized;
+            vecy.y = 0;
+            transform.right = transform.position + vecy;
+        }
         camOffset.transform.position = new Vector2(camOffset.transform.position.x, yPos);
         grounded = checkGrounded();
         if (Input.GetKey(globalKey))
@@ -42,6 +116,11 @@ public class move : MonoBehaviour
             if (grounded)
             {
                 groundedMoveCheck();
+            }
+            else if(targetGrapple != null)
+            {
+                lr.SetPosition(0, tongueStart.transform.position);
+                lr.SetPosition(1, targetGrapple.transform.position);
             }
             
         }
@@ -51,7 +130,37 @@ public class move : MonoBehaviour
             {
                 groundedKeyUp();
             }
+            unGrapple();
         }
+    }
+    public void unGrapple()
+    {
+        if (targetGrapple != null)
+        {
+            lr.enabled = false;
+            targetGrapple.GetComponent<SpriteRenderer>().color = Color.red;
+            targetGrapple = null;
+            j.connectedBody = null;
+            targetGrapplerb2d = null;
+            j.enabled = false;
+        }
+    }
+    public GameObject checkGrapplePoints()
+    {
+        GameObject closest = null;
+        Collider2D[] cols = Physics2D.OverlapCircleAll(transform.position, grappleRadius,grapple);
+        float closestDist = float.MaxValue;
+        foreach(Collider2D col in cols)
+        {
+            col.gameObject.GetComponent<SpriteRenderer>().color = Color.red;
+            float dist = Vector2.Distance(transform.position, col.transform.position);
+            if(dist < closestDist)
+            {
+                closestDist = dist;
+                closest = col.gameObject;
+            }
+        }
+        return closest;
     }
     public bool checkGrounded()
     {
@@ -66,6 +175,7 @@ public class move : MonoBehaviour
                 if (checkable)
                 {
                     anim.SetBool("hitGround", true);
+                    unGrapple();
                 }
                 draw = Color.red;
             }
