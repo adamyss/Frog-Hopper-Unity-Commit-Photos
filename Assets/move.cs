@@ -45,6 +45,12 @@ public class move : MonoBehaviour
     public float moveOutTime;
     Vector3 offset;
     public Vector3 lastCheckPoint;
+    public float minForce;
+    public float maxForce;
+    public GameObject forceBarPivot;
+    public bool scaleyUpy;
+    public float forceChangeSpeed;
+    public GameObject pivotDisplayer;
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -78,7 +84,13 @@ public class move : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-   
+        if (grounded)
+        {
+            forceBarPivot.transform.eulerAngles = Vector3.zero;
+           
+            forceBarPivot.transform.localScale = new Vector3(forceBarPivot.transform.localScale.x,Mathf.Lerp(0,0.25f,Mathf.InverseLerp(minForce,maxForce,jumpForce)),1);
+        }
+
         // :D 
         if(j.enabled == true)
         {
@@ -300,17 +312,42 @@ public class move : MonoBehaviour
             return;
         }
         jumpable = false;
-        pivot.SetActive(false);
+       
        
         StartCoroutine(jump());
 
     }
     public IEnumerator jump()
     {
+        forceBarPivot.SetActive(true);
+        pivotDisplayer.SetActive(true);
+        while (!Input.GetKey(globalKey))
+        {
+            if (scaleyUpy)
+            {
+                jumpForce += forceChangeSpeed * Time.deltaTime;
+            }
+            else
+            {
+                jumpForce -= forceChangeSpeed * Time.deltaTime;
+            }
+            jumpForce = Mathf.Clamp(jumpForce, minForce, maxForce);
+            if (jumpForce == minForce)
+            {
+                scaleyUpy = true;
+            }
+            else if (jumpForce == maxForce)
+            {
+                scaleyUpy = false;
+            }
+            yield return new WaitForEndOfFrame();
+        }
+        pivotDisplayer.SetActive(false);
+        forceBarPivot.SetActive(false);
         checkable = false;
         anim.SetBool("hitGround", false);
         anim.Play("jump");
-  
+        pivot.SetActive(false);
         yield return new WaitForSeconds(jumpTime);
         Vector2 dir = pivot.transform.right;
         dir = dir.normalized;
