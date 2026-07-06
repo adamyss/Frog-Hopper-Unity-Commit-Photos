@@ -2,6 +2,7 @@ using System.Collections;
 using TMPro.EditorUtilities;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Playables;
 using UnityEngine.UI;
 
 public class move : MonoBehaviour
@@ -51,15 +52,18 @@ public class move : MonoBehaviour
     public bool scaleyUpy;
     public float forceChangeSpeed;
     public GameObject pivotDisplayer;
-    
+    public float maxScale = 0.35f;
+    public PlayableDirector slow;
+    public float speedy = 0.75f;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        slow.playableGraph.GetRootPlayable(0).SetSpeed(speedy);
         offset = camOffset.transform.position;
     }
     private void OnDrawGizmos()
     {
-        Gizmos.DrawSphere(transform.position,grappleRadius);
+        //Gizmos.DrawSphere(transform.position,grappleRadius);
     }
     public void mouseLook()
     {
@@ -88,7 +92,7 @@ public class move : MonoBehaviour
         {
             forceBarPivot.transform.eulerAngles = Vector3.zero;
            
-            forceBarPivot.transform.localScale = new Vector3(forceBarPivot.transform.localScale.x,Mathf.Lerp(0,0.25f,Mathf.InverseLerp(minForce,maxForce,jumpForce)),1);
+            forceBarPivot.transform.localScale = new Vector3(forceBarPivot.transform.localScale.x,Mathf.Lerp(0,maxScale,Mathf.InverseLerp(minForce,maxForce,jumpForce)),1);
         }
 
         // :D 
@@ -319,6 +323,7 @@ public class move : MonoBehaviour
     }
     public IEnumerator jump()
     {
+        rotFreeze = true;
         forceBarPivot.SetActive(true);
         pivotDisplayer.SetActive(true);
         while (!Input.GetKey(globalKey))
@@ -355,6 +360,7 @@ public class move : MonoBehaviour
         Debug.Log("direction: " + dir);
         rb2d.AddForce(dir * jumpForce);
         yield return new WaitForSeconds(0.2f);
+        rotFreeze = false;
         checkable = true;
         jumpable = true;
     }
