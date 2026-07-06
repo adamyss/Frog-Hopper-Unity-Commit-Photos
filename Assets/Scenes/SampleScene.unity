@@ -5884,6 +5884,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Ground
       objectReference: {fileID: 0}
+    - target: {fileID: 7612959710321225600, guid: 572c26a0233c5634d87e192be0336ad0, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 8581982686217164319, guid: 572c26a0233c5634d87e192be0336ad0, type: 3}
       propertyPath: m_LocalPosition.x
       value: 1.2683315
@@ -6072,7 +6076,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 4
 --- !u!60 &1933147816
 PolygonCollider2D:
   m_ObjectHideFlags: 0
@@ -6221,13 +6225,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pivot: {fileID: 1883694824}
   rb2d: {fileID: 1933147815}
-  minAngle: -35
-  maxAngle: 45
-  jumpForce: -85
+  minAngle: -10
+  maxAngle: 65
+  jumpForce: 200
   up: 0
   angleAddSpeed: 20
   angle: 0
   grounded: 1
+  raycastDists: 0.4
+  leftRightOffsets:
+  - -0.6
+  - 0
+  - 0.6
+  ground:
+    serializedVersion: 2
+    m_Bits: 64
+  groundCheckYOffset: -0.2
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

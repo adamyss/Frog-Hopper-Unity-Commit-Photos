@@ -12,6 +12,10 @@ public class move : MonoBehaviour
     public float angleAddSpeed;
     public float angle;
     public bool grounded = true;
+    public float raycastDists;
+    public float[] leftRightOffsets;
+    public LayerMask ground;
+    public float groundCheckYOffset;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -21,6 +25,7 @@ public class move : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        grounded = checkGrounded();
         if (Input.GetKey(globalKey))
         {
             if (grounded)
@@ -31,8 +36,37 @@ public class move : MonoBehaviour
         }
         if (Input.GetKeyUp(globalKey))
         {
-            rb2d.AddForce(pivot.transform.up * jumpForce);
+            if (grounded)
+            {
+                groundedKeyUp();
+            }
+            else
+            {
+
+            }
         }
+    }
+    public bool checkGrounded()
+    {
+        bool anyGround = false;
+        foreach(float f in leftRightOffsets)
+        {
+            Vector3 pos = transform.position + new Vector3(f, groundCheckYOffset, 0);
+            Color draw = Color.blue;
+           
+            if (Physics2D.Raycast(pos, Vector2.down, raycastDists, ground).collider != null){
+                anyGround = true;
+                draw = Color.red;
+            }
+            Debug.DrawRay(pos, Vector2.down, draw);
+        }
+        return anyGround;
+    }
+    public void groundedKeyUp()
+    {
+        Vector2 dir = pivot.transform.right;
+        dir = dir.normalized;
+        rb2d.AddForce(dir * jumpForce);
     }
     public void groundedMoveCheck()
     {
