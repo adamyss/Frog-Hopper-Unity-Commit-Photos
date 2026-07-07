@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Linq;
 using TMPro.EditorUtilities;
 using UnityEditor;
 using UnityEngine;
@@ -32,7 +33,7 @@ public class move : MonoBehaviour
     public GameObject targetGrapple;
     public LineRenderer lr;
     public LayerMask grapple;
-    public SpringJoint2D j;
+    public DistanceJoint2D j;
     Rigidbody2D targetGrapplerb2d;
     public GameObject tongue;
     public GameObject tongueStart;
@@ -55,6 +56,9 @@ public class move : MonoBehaviour
     public float maxScale = 0.35f;
     public PlayableDirector slow;
     public float speedy = 0.75f;
+    public float[] possibleYPoints;
+    public float nextYPos;
+    public float afterBoost;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -90,7 +94,7 @@ public class move : MonoBehaviour
     {
         if (grounded)
         {
-            forceBarPivot.transform.eulerAngles = Vector3.zero;
+  
            
             forceBarPivot.transform.localScale = new Vector3(forceBarPivot.transform.localScale.x,Mathf.Lerp(0,maxScale,Mathf.InverseLerp(minForce,maxForce,jumpForce)),1);
         }
@@ -142,10 +146,16 @@ public class move : MonoBehaviour
             else
             {
                 Vector3 vecy = (Vector3)rb2d.linearVelocity.normalized;
-                vecy.y = 0;
-                transform.right = transform.position + vecy;
+                if(vecy.x < 0)
+                {
+                    transform.eulerAngles = new Vector3(0, 180, 0);
+                } else if (vecy.x > 0){
+                    transform.eulerAngles = new Vector3(0, 0, 0);
+                }
             }
         }
+        // more math I stole from unity forumns >:D
+        yPos = yOffsety();
         if (transform.eulerAngles.y == 0 || j.enabled == true && rb2d.linearVelocityX > 0)
         {
             camOffset.transform.position = new Vector2(transform.position.x + offset.x, yPos);
@@ -175,6 +185,19 @@ public class move : MonoBehaviour
             }
             unGrapple();
         }
+    }
+    public float yOffsety()
+    {
+        
+        float yy = possibleYPoints[0];
+        foreach(float f in possibleYPoints)
+        {
+            if(transform.position.y - nextYPos < f)
+            {
+                yy = f;
+            }
+        }
+        return yy;
     }
     public IEnumerator die()
     {
@@ -254,6 +277,7 @@ public class move : MonoBehaviour
         lr.enabled = false;
         rb2d.bodyType = RigidbodyType2D.Dynamic;
         rb2d.linearVelocity = prev;
+        rb2d.AddForce(prev * afterBoost);
         rotFreeze = false;
         yield return null;
     }
@@ -326,6 +350,8 @@ public class move : MonoBehaviour
         rotFreeze = true;
         forceBarPivot.SetActive(true);
         pivotDisplayer.SetActive(true);
+        jumpForce = minForce;
+        scaleyUpy = true;
         while (!Input.GetKey(globalKey))
         {
             if (scaleyUpy)
