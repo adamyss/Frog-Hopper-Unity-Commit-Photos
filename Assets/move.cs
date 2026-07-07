@@ -188,6 +188,10 @@ public class move : MonoBehaviour
             {
                 j.distance = dist + adder;
             }
+            if(j.distance < 0.5f)
+            {
+                j.distance = 0.5f;
+            }
         }
         if (targetGrapple == null && grounded == false)
         {
