@@ -61,8 +61,24 @@ public class move : MonoBehaviour
     public bool dieing;
     public float afterBoost;
     public Collider2D coly;
-
+    public LineRenderer trajectoryLine;
+    public int lineAmount = 20;
     public float adder = 0.27f;
+    public GameObject landMarker;
+    public bool assist;
+    public bool hovering;
+    public RawImage rimage;
+    public Color selected;
+    public Color hover;
+
+    public void startHover()
+    {
+        hovering = true;
+    }
+    public void endHover()
+    {
+        hovering = false;
+    }
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -92,13 +108,68 @@ public class move : MonoBehaviour
         Vector3 dir = lookyObjPos - transform.position;
         transform.right = dir;
     }
+  
 
+    public void drawTrajectory(Vector2 startPos, Vector2 vel, float gravy)
+    {
+        if(assist == false)
+        {
+            trajectoryLine.enabled = false;
+            return;
+        }
+        trajectoryLine.positionCount = lineAmount;
+        Vector3[] points = new Vector3[lineAmount];
+        trajectoryLine.positionCount = lineAmount;
+        int breakInt = 900;
+        for (int i = 0; i < lineAmount; i++)
+        {
+            // got some of this math of stack overflow and just editted it abit
+            float stepy = i / 20f;
+            float dx = vel.x * stepy;
+            float dy = (vel.y * stepy) - (0.5f * Mathf.Abs(Physics2D.gravity.y) * gravy * stepy * stepy);
+            points[i] = new Vector3(startPos.x + dx, startPos.y + dy, 0f);
+            if(breakInt == i)
+            {
+                trajectoryLine.positionCount = i;
+                landMarker.transform.position = points[i];
+                break;
+            }
+            if (Physics2D.OverlapCircle(points[i],1/lineAmount,ground) == true)
+            {
+                breakInt = i + 1;
+               
+               
+            }
+        }
+        trajectoryLine.SetPositions(points);
+    }
     // Update is called once per frame
     void Update()
     {
         if (dieing)
         {
             return;
+        }
+        if (hovering)
+        {
+            rimage.color = hover;
+        }
+        else
+        {
+            if (assist)
+            {
+                rimage.color = selected;
+            }
+            else
+            {
+                rimage.color = Color.white;
+            }
+        }
+        if(hovering && Input.GetKeyDown(KeyCode.Space))
+        {
+            assist = !assist;
+            return;
+            
         }
         if (grounded)
         {
@@ -107,10 +178,11 @@ public class move : MonoBehaviour
             forceBarPivot.transform.localScale = new Vector3(forceBarPivot.transform.localScale.x,Mathf.Lerp(0,maxScale,Mathf.InverseLerp(minForce,maxForce,jumpForce)),1);
         }
 
+
         // :D 
         if(j.enabled == true)
         {
-
+            tongue.transform.position = targetGrapple.transform.position;
             float dist = Vector2.Distance(transform.position,targetGrapple.transform.position);
             if(dist+adder <j.distance )
             {
@@ -234,12 +306,14 @@ public class move : MonoBehaviour
     public IEnumerator startyGraply()
     {
         grappleLook();
+
         Vector2 prev = rb2d.linearVelocity;
         rotFreeze = true;
         rb2d.bodyType = RigidbodyType2D.Kinematic;
         rb2d.linearVelocity = Vector3.zero;
         anim.Play("toungeOut");
         yield return new WaitForSeconds(outTime);
+        transform.parent = targetGrapple.transform;
         Vector3 movyPos;
         lr.SetPosition(0, tongueStart.transform.position);
         lr.SetPosition(1, tongueStart.transform.position);
@@ -267,6 +341,7 @@ public class move : MonoBehaviour
     }
     public IEnumerator unGrapply()
     {
+        transform.parent = null;
         rotFreeze = true;
         Vector2 prev = rb2d.linearVelocity;
         rb2d.bodyType = RigidbodyType2D.Kinematic;
@@ -357,13 +432,23 @@ public class move : MonoBehaviour
     }
     public IEnumerator jump()
     {
+        landMarker.SetActive(true);
         rotFreeze = true;
         forceBarPivot.SetActive(true);
         pivotDisplayer.SetActive(true);
+        trajectoryLine.enabled = true;
         jumpForce = minForce;
         scaleyUpy = true;
+        Vector2 dir = pivot.transform.right;
+        dir = dir.normalized;
+        dir.y *= yMult;
+        if (assist)
+        {
+            pivot.SetActive(false);
+        }
         while (!Input.GetKey(globalKey))
         {
+            drawTrajectory(transform.position, dir * jumpForce * Time.fixedDeltaTime, rb2d.gravityScale);
             if (scaleyUpy)
             {
                 jumpForce += forceChangeSpeed * Time.deltaTime;
@@ -383,6 +468,8 @@ public class move : MonoBehaviour
             }
             yield return new WaitForEndOfFrame();
         }
+        landMarker.SetActive(false);
+        trajectoryLine.enabled = false;
         pivotDisplayer.SetActive(false);
         forceBarPivot.SetActive(false);
         checkable = false;
@@ -390,9 +477,7 @@ public class move : MonoBehaviour
         anim.Play("jump");
         pivot.SetActive(false);
         yield return new WaitForSeconds(jumpTime);
-        Vector2 dir = pivot.transform.right;
-        dir = dir.normalized;
-        dir.y *= yMult;
+     
         Debug.Log("direction: " + dir);
         coly.enabled = false;
         
