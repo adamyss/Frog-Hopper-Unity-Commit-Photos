@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Linq;
-using TMPro.EditorUtilities;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Playables;
@@ -70,6 +69,9 @@ public class move : MonoBehaviour
     public RawImage rimage;
     public Color selected;
     public Color hover;
+    public ParticleSystem jumpy;
+    public ParticleSystem toungeHit;
+    public Vector3 offsety;
 
     public void startHover()
     {
@@ -84,6 +86,7 @@ public class move : MonoBehaviour
     {
         slow.playableGraph.GetRootPlayable(0).SetSpeed(speedy);
         offset = camOffset.transform.position;
+        offsety = jumpy.transform.position - transform.position;
     }
     private void OnDrawGizmos()
     {
@@ -333,6 +336,7 @@ public class move : MonoBehaviour
             timer += Time.deltaTime;
             yield return new WaitForEndOfFrame();
         }
+      
         rb2d.bodyType = RigidbodyType2D.Dynamic;
         rb2d.linearVelocity = prev;
         j.distance = Vector2.Distance(transform.position,targetGrapple.transform.position);
@@ -341,10 +345,14 @@ public class move : MonoBehaviour
         targetGrapplerb2d = targetGrapple.GetComponent<Rigidbody2D>();
         j.connectedBody = targetGrapplerb2d;
         tongue.transform.position = targetGrapple.transform.position;
+        toungeHit.Play();
         rotFreeze = false;
     }
     public IEnumerator unGrapply()
     {
+    
+        toungeHit.Stop();
+        toungeHit.Clear();
         transform.parent = null;
         rotFreeze = true;
         Vector2 prev = rb2d.linearVelocity;
@@ -481,7 +489,16 @@ public class move : MonoBehaviour
         anim.Play("jump");
         pivot.SetActive(false);
         yield return new WaitForSeconds(jumpTime);
-     
+        jumpy.transform.eulerAngles = new Vector3(0,transform.eulerAngles.y,jumpy.transform.eulerAngles.z);
+        if(transform.eulerAngles.y == 180)
+        {
+            jumpy.transform.position = transform.position + offsety;
+        }
+        else
+        {
+            jumpy.transform.position = transform.position - offsety;
+        }
+        jumpy.Play();
         Debug.Log("direction: " + dir);
         coly.enabled = false;
         
