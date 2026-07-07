@@ -58,7 +58,11 @@ public class move : MonoBehaviour
     public float speedy = 0.75f;
     public float[] possibleYPoints;
     public float nextYPos;
+    public bool dieing;
     public float afterBoost;
+    public Collider2D coly;
+
+    public float adder = 0.27f;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -92,6 +96,10 @@ public class move : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (dieing)
+        {
+            return;
+        }
         if (grounded)
         {
   
@@ -102,7 +110,7 @@ public class move : MonoBehaviour
         // :D 
         if(j.enabled == true)
         {
-            float adder = 0.27f;
+
             float dist = Vector2.Distance(transform.position,targetGrapple.transform.position);
             if(dist+adder <j.distance )
             {
@@ -201,10 +209,12 @@ public class move : MonoBehaviour
     }
     public IEnumerator die()
     {
+        dieing = true;
         anim.Play("die");
         yield return new WaitForSeconds(0.45f);
         transform.position = lastCheckPoint;
         anim.Play("IDLE");
+        dieing = false;
     }
     private void OnCollisionEnter2D(Collision2D collision)
     {
@@ -384,8 +394,12 @@ public class move : MonoBehaviour
         dir = dir.normalized;
         dir.y *= yMult;
         Debug.Log("direction: " + dir);
+        coly.enabled = false;
+        
         rb2d.AddForce(dir * jumpForce);
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(0.05f);
+        coly.enabled = true;
+        yield return new WaitForSeconds(0.15f);
         rotFreeze = false;
         checkable = true;
         jumpable = true;
