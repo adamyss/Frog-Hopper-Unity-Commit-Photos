@@ -39,6 +39,7 @@ public class testGrapple : MonoBehaviour
     {
         
     }
+    // animation code for tutorial thingy literally just reusing the jump and grapple code from move script
     public IEnumerator animationThingy()
     {
         anim.Play("jump");

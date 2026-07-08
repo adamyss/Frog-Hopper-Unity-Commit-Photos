@@ -10,6 +10,7 @@ public class movingobstacle : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        // setting up thresholds for how far up down obstacle moves
         min = transform.position.y - moveAmount;
         max = transform.position.y + moveAmount;
     }
@@ -17,6 +18,7 @@ public class movingobstacle : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // moves obstacle up or down based of up boolean
         if (up)
         {
             transform.position += Vector3.up * moveSpeed * Time.deltaTime;
@@ -25,6 +27,7 @@ public class movingobstacle : MonoBehaviour
         {
             transform.position -= Vector3.up * moveSpeed * Time.deltaTime;
         }
+        // sets up boolean if passing thresholds
         if(transform.position.y >= max)
         {
             up = false;

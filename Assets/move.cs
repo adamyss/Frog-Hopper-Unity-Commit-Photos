@@ -7,7 +7,8 @@ using UnityEngine.UI;
 
 public class move : MonoBehaviour
 {
-    public static KeyCode globalKey = KeyCode.Space;
+    // just the variables and stuffs
+    public KeyCode globalKey = KeyCode.Space;
     public GameObject pivot;
     public Rigidbody2D rb2d;
     public float minAngle;
@@ -72,11 +73,13 @@ public class move : MonoBehaviour
     public ParticleSystem jumpy;
     public ParticleSystem toungeHit;
     public Vector3 offsety;
-
+    public SpriteRenderer sr;
+    // function called by assist ui object to let code know that the button is being hovered over :D
     public void startHover()
     {
         hovering = true;
     }
+    // function called by assist ui object to let code know that the button is NOT being hovered over
     public void endHover()
     {
         hovering = false;
@@ -84,14 +87,18 @@ public class move : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        // just slowing down one of the tutorial animations cause it was too fast
         slow.playableGraph.GetRootPlayable(0).SetSpeed(speedy);
+        // sets camera offset
         offset = camOffset.transform.position;
+        // sets offset for jumping particle system
         offsety = jumpy.transform.position - transform.position;
     }
     private void OnDrawGizmos()
     {
         //Gizmos.DrawSphere(transform.position,grappleRadius);
     }
+    // function that changes direction player is facing based off if mouse is on left or right side of screen
     public void mouseLook()
     {
         Vector3 mousePos = Input.mousePosition;
@@ -104,26 +111,29 @@ public class move : MonoBehaviour
             transform.eulerAngles = new Vector3(0, 0, 0);
         }
     }
+    // function that sets player to look at grappling hook
     public void grappleLook()
     {
-       
         Vector3 lookyObjPos = targetGrapple.transform.position;
         Vector3 dir = lookyObjPos - transform.position;
         transform.right = dir;
     }
   
-
+    // function to draw the trajectory of where player will land in assist mode
     public void drawTrajectory(Vector2 startPos, Vector2 vel, float gravy)
     {
         if(assist == false)
         {
+            // does not draw trajectory if assist mode is not active
             trajectoryLine.enabled = false;
             return;
         }
+        // sets up line renderer for line
         trajectoryLine.positionCount = lineAmount;
         Vector3[] points = new Vector3[lineAmount];
         trajectoryLine.positionCount = lineAmount;
-        int breakInt = 900;
+        int breakInt = int.MaxValue;
+        // for loop that calculates points to put on line renderer based off trajectory player will have
         for (int i = 0; i < lineAmount; i++)
         {
             // got some of this math of stack overflow and just editted it abit
@@ -133,15 +143,15 @@ public class move : MonoBehaviour
             points[i] = new Vector3(startPos.x + dx, startPos.y + dy, 0f);
             if(breakInt == i)
             {
+                // ends loop early if breakInt is that same as i
                 trajectoryLine.positionCount = i;
                 landMarker.transform.position = points[i];
                 break;
             }
+            // checks if line hits an object and if so sets breakInt to be equal to i on the next itteration
             if (Physics2D.OverlapCircle(points[i],1/lineAmount,ground) == true)
             {
                 breakInt = i + 1;
-               
-               
             }
         }
         trajectoryLine.SetPositions(points);
@@ -149,10 +159,12 @@ public class move : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // dont do anything if dead lol
         if (dieing)
         {
             return;
         }
+        // sets assist mode ui color based of being selected hovered or off
         if (hovering)
         {
             rimage.color = hover;
@@ -168,21 +180,24 @@ public class move : MonoBehaviour
                 rimage.color = Color.white;
             }
         }
+        // changes assist mode if ui is hovered over and space is pressed
         if(hovering && Input.GetKeyDown(KeyCode.Space))
         {
             assist = !assist;
             return;
             
         }
+        // sets the scale of a spritemask to be based off of current jumpforce compared to minimum and maximum which basically makes the animation of the bar going up and down
         if (grounded)
         {
-  
-           
             forceBarPivot.transform.localScale = new Vector3(forceBarPivot.transform.localScale.x,Mathf.Lerp(0,maxScale,Mathf.InverseLerp(minForce,maxForce,jumpForce)),1);
         }
 
 
         // :D 
+        /* if grappling hook enabled set tounge position to the target grappling point aswell as moving player closer to it by lowering 
+         distance joint distance if close enough idk if said distance code actually helps or if its just the distance joint doing it but im
+         to scared to mess it up so code stays >:D */
         if(j.enabled == true)
         {
             tongue.transform.position = targetGrapple.transform.position;
@@ -196,6 +211,7 @@ public class move : MonoBehaviour
                 j.distance = 0.5f;
             }
         }
+        // if in air check closest grappling point and set its color so player knows
         if (targetGrapple == null && grounded == false)
         {
             closest = checkGrapplePoints();
@@ -204,11 +220,13 @@ public class move : MonoBehaviour
                 closest.GetComponent<SpriteRenderer>().color = Color.blue;
             }
         }
+        // resets closest grapple point color when landing on ground
         if (grounded == true && closest != null)
         {
             closest.GetComponent<SpriteRenderer>().color = Color.red;
             closest = null;
         }
+        // runs grapple logic if in air when space is pressed
         if (Input.GetKeyDown(globalKey))
         {
             if (!grounded)
@@ -220,6 +238,7 @@ public class move : MonoBehaviour
                 }
             }
         }
+        // if not freezing rotation rotate player based off on ground, in air, or attatched to grapple
         if (rotFreeze == false)
         {
             if (!grounded && targetGrapple != null)
@@ -241,8 +260,9 @@ public class move : MonoBehaviour
                 }
             }
         }
-        // more math I stole from unity forumns >:D
+        // sets y offset for camera
         yPos = yOffsety();
+        // sets camera offset objects position
         if (transform.eulerAngles.y == 0 || j.enabled == true && rb2d.linearVelocityX > 0)
         {
             camOffset.transform.position = new Vector2(transform.position.x + offset.x, yPos);
@@ -250,7 +270,9 @@ public class move : MonoBehaviour
         {
             camOffset.transform.position = new Vector2(transform.position.x - offset.x, yPos);
         }
+        // checks if on ground
         grounded = checkGrounded();
+        // if on ground runs either grappling hook logic or jump movement if possible
         if (Input.GetKey(globalKey))
         {
             if (grounded)
@@ -264,6 +286,7 @@ public class move : MonoBehaviour
             }
             
         }
+        // runs function for jumpy stuff if letting go of space on ground otherwhise ungrapple if grappled
         if (Input.GetKeyUp(globalKey))
         {
             if (grounded)
@@ -275,7 +298,7 @@ public class move : MonoBehaviour
     }
     public float yOffsety()
     {
-        
+        // calculates y offset point for cam
         float yy = possibleYPoints[0];
         foreach(float f in possibleYPoints)
         {
@@ -288,6 +311,7 @@ public class move : MonoBehaviour
     }
     public IEnumerator die()
     {
+        // plays animation and sets player back to checkpoint
         dieing = true;
         anim.Play("die");
         yield return new WaitForSeconds(0.45f);
@@ -297,6 +321,7 @@ public class move : MonoBehaviour
     }
     private void OnCollisionEnter2D(Collision2D collision)
     {
+        // if hit die
         if (collision.gameObject.CompareTag("hit"))
         {
             StartCoroutine(die());
@@ -305,11 +330,13 @@ public class move : MonoBehaviour
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        // sets checkpoint position to hit checkpoint
         if (collision.gameObject.CompareTag("checkpoint"))
         {
             lastCheckPoint = collision.gameObject.transform.position;
         }
     }
+    // code to set up rigidbody, linerenderer, and distance joint for grappling
     public IEnumerator startyGraply()
     {
         grappleLook();
@@ -348,9 +375,10 @@ public class move : MonoBehaviour
         toungeHit.Play();
         rotFreeze = false;
     }
+    // code to reset all grappling related stuff (like the rotation and particlesystem), plays neccesary animations,  and add some force to rigidbody after leaving grappling state
     public IEnumerator unGrapply()
     {
-    
+        
         toungeHit.Stop();
         toungeHit.Clear();
         transform.parent = null;
@@ -378,6 +406,7 @@ public class move : MonoBehaviour
         rotFreeze = false;
         yield return null;
     }
+    // calls the unGrapply courotuining aswell as well as disabling stuff like the distance joint 
     public void unGrapple()
     {
         if (targetGrapple != null)
@@ -391,6 +420,7 @@ public class move : MonoBehaviour
             StartCoroutine(unGrapply());
         }
     }
+    // finds closest grapple point in range
     public GameObject checkGrapplePoints()
     {
         GameObject closest = null;
@@ -408,6 +438,9 @@ public class move : MonoBehaviour
         }
         return closest;
     }
+    // uses a series of raycasts to check if playerr is on the ground
+
+
     public bool checkGrounded()
     {
         bool anyGround = false;
@@ -430,6 +463,7 @@ public class move : MonoBehaviour
 
         return anyGround;
     }
+    // calls when space is put up and starts jump corutine if possible
     public void groundedKeyUp()
     {
         if (!jumpable)
@@ -442,6 +476,7 @@ public class move : MonoBehaviour
         StartCoroutine(jump());
 
     }
+    // code to scale the jump force, calls draw trajectory function if in assist mopde, aswell as add force to the player to launch them after
     public IEnumerator jump()
     {
         landMarker.SetActive(true);
@@ -510,6 +545,7 @@ public class move : MonoBehaviour
         checkable = true;
         jumpable = true;
     }
+    // runs code if holding space to move the pivot (arrow bar) to adjust player launch direction
     public void groundedMoveCheck()
     {
         if (!jumpable)
